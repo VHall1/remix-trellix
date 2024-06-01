@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getSessionFromRequest } from "~/utils/session.server";
+import { requireUserIdFromRequest } from "~/utils/session.server";
 
 export default function Index() {
   const { userId } = useLoaderData<typeof loader>();
@@ -9,7 +9,6 @@ export default function Index() {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSessionFromRequest(request);
-  const userId = session.get("userId");
+  const userId = await requireUserIdFromRequest(request);
   return { userId };
 }

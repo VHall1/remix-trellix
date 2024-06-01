@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from "@remix-run/node";
+import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 invariant(
@@ -29,9 +29,24 @@ const getSessionFromRequest = (request: Request) => {
   return getSessionFromCookie(cookie);
 };
 
+const getUserIdFromRequest = async (request: Request) => {
+  const session = await getSessionFromRequest(request);
+  return session.get("userId");
+};
+
+const requireUserIdFromRequest = async (request: Request) => {
+  const userId = await getUserIdFromRequest(request);
+  if (!userId) {
+    throw redirect("/login");
+  }
+  return userId;
+};
+
 export {
   commitSession,
   destroySession,
   getSessionFromCookie,
   getSessionFromRequest,
+  getUserIdFromRequest,
+  requireUserIdFromRequest,
 };

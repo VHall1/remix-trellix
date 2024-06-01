@@ -1,6 +1,5 @@
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { Prisma } from "@prisma/client";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, Link, redirect, useActionData } from "@remix-run/react";
 import { z } from "zod";
@@ -9,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { commitSession, getSessionFromRequest } from "~/utils/session.server";
-import { signup } from "./db";
+import { login } from "./db";
 
 export default function Signup() {
   const lastResult = useActionData<typeof action>();
@@ -26,7 +25,7 @@ export default function Signup() {
     <main className="py-12">
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Sign up</CardTitle>
+          <CardTitle className="text-2xl text-center">Log in</CardTitle>
         </CardHeader>
         <CardContent>
           <Form method="post" id={form.id} onSubmit={form.onSubmit} noValidate>
@@ -45,7 +44,15 @@ export default function Signup() {
                 </small>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor={fields.password.id}>Password</Label>
+                <div className="flex items-center">
+                  <Label htmlFor={fields.password.id}>Password</Label>
+                  <Link
+                    to="#"
+                    className="ml-auto inline-block text-sm underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
                 <Input
                   id={fields.password.id}
                   name={fields.password.name}
@@ -61,13 +68,13 @@ export default function Signup() {
                 {form.errors}
               </small>
               <Button type="submit" className="w-full">
-                Sign up
+                Log in
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
-              <Link to="/login" className="underline">
-                Log in
+              Don&apos;t have an account?{" "}
+              <Link to="/signup" className="underline">
+                Sign up
               </Link>
             </div>
           </Form>
@@ -79,7 +86,7 @@ export default function Signup() {
 
 const schema = z.object({
   email: z.string().email(),
-  password: z.string().min(8, "Password has to be at least 8 characters long"),
+  password: z.string(),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -90,22 +97,13 @@ export async function action({ request }: ActionFunctionArgs) {
     return submission.reply();
   }
 
-  let user;
-  try {
-    user = await signup(submission.value.email, submission.value.password);
-  } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      if (e.code === "P2002") {
-        return submission.reply({
-          formErrors: ["An account with this email already exists"],
-        });
-      }
-    }
-    throw e;
+  const userId = await login(submission.value.email, submission.value.password);
+  if (!userId) {
+    return submission.reply({ formErrors: ["Invalid email or password"] });
   }
 
   const session = await getSessionFromRequest(request);
-  session.set("userId", user.id);
+  session.set("userId", userId);
   return redirect("/", {
     headers: { "Set-Cookie": await commitSession(session) },
   });
