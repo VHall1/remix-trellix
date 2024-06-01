@@ -43,7 +43,7 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
-        <div className="container flex h-12 max-w-screen-2xl items-center">
+        <div className="flex h-12 items-center px-2">
           <div className="flex flex-1">
             <Link to="/" className="flex items-center">
               <SquareKanbanIcon />
@@ -52,7 +52,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <div className="flex flex-1 justify-end">
             <DropdownMenu>
-              <DropdownMenuTrigger>
+              <DropdownMenuTrigger className="p-1">
                 <Avatar className="w-6 h-6">
                   <AvatarImage src="https://github.com/shadcn.png" />
                   <AvatarFallback>CN</AvatarFallback>
@@ -111,7 +111,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="pt-6 flex-1 container max-w-screen-2xl">{children}</main>
+      <main className="flex-1">{children}</main>
     </div>
   );
 }
