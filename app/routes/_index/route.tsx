@@ -50,7 +50,7 @@ export default function Index() {
 }
 
 export const schema = z.object({
-  name: z.string().min(3, "Board name has to be at least 3 characters long"),
+  name: z.string(),
 });
 
 export async function action({ request }: ActionFunctionArgs) {

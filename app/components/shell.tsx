@@ -41,7 +41,7 @@ export function Shell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
         <div className="flex h-12 items-center px-2">
           <div className="flex flex-1">
@@ -111,7 +111,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="flex-1">{children}</main>
+      <main className="h-full">{children}</main>
     </div>
   );
 }
