@@ -47,9 +47,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUserIdFromRequest(request),
     getThemeFromRequest(request),
   ]);
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: { email: true },
-  });
+
+  let user = null;
+  if (userId) {
+    user = await db.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+  }
   return { theme, userEmail: user?.email };
 }
