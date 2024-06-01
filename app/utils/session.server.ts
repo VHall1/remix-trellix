@@ -24,7 +24,7 @@ const {
   },
 });
 
-const getSessionFromHeader = (request: Request) => {
+const getSessionFromRequest = (request: Request) => {
   const cookie = request.headers.get("Cookie");
   return getSessionFromCookie(cookie);
 };
@@ -33,5 +33,5 @@ export {
   commitSession,
   destroySession,
   getSessionFromCookie,
-  getSessionFromHeader,
+  getSessionFromRequest,
 };
