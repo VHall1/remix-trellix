@@ -34,7 +34,7 @@ model Password {
 model Board {
   id        String   @id @default(uuid())
   name      String
-  cards     Card[]
+  stories   Story[]
   lists     List[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -50,12 +50,12 @@ model List {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cards   Card[]
-  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  stories Story[]
+  board   Board   @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId String
 }
 
-model Card {
+model Story {
   id        String   @id @default(uuid())
   title     String
   content   String?

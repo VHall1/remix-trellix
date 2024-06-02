@@ -1,4 +1,5 @@
 import { parseWithZod } from "@conform-to/zod";
+import { DndContext } from "@dnd-kit/core";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -16,10 +17,10 @@ import {
 } from "~/components/ui/popover";
 import { db } from "~/utils/db.server";
 import { requireUserIdFromRequest } from "~/utils/session.server";
-import { createCard, createList } from "./db";
-import { NewCard } from "./new-card";
+import { createList, createStory } from "./db";
 import { NewList } from "./new-list";
-import { DndContext } from "@dnd-kit/core";
+import { NewStory } from "./new-story";
+import { Story } from "./story";
 
 export default function Board() {
   const { boardData } = useLoaderData<typeof loader>();
@@ -35,19 +36,17 @@ export default function Board() {
                   <h2>{list.name}</h2>
                 </div>
                 <div className="flex flex-col gap-2">
-                  {list.cards.map((card) => (
-                    <Card key={card.id} draggable>
-                      {card.title}
-                    </Card>
+                  {list.stories.map((story) => (
+                    <Story story={story} key={story.id} />
                   ))}
                   <Popover>
                     <PopoverTrigger>
-                      <Button variant="ghost" size="sm">
-                        New card
+                      <Button variant="ghost" size="sm" className="w-full">
+                        New story
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-80">
-                      <NewCard listId={list.id} />
+                      <NewStory listId={list.id} />
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -72,7 +71,7 @@ export const listSchema = z.object({
   name: z.string(),
 });
 
-export const cardSchema = z.object({
+export const storySchema = z.object({
   title: z.string(),
   listId: z.string(),
 });
@@ -93,12 +92,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await createList(userId, boardId, submission.value.name);
       break;
     }
-    case "card": {
-      const submission = parseWithZod(formData, { schema: cardSchema });
+    case "story": {
+      const submission = parseWithZod(formData, { schema: storySchema });
       if (submission.status !== "success") {
         return submission.reply();
       }
-      await createCard(
+      await createStory(
         userId,
         boardId,
         submission.value.listId,
@@ -124,7 +123,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         select: {
           id: true,
           name: true,
-          cards: { select: { id: true, title: true } },
+          stories: { select: { id: true, title: true } },
         },
       },
     },

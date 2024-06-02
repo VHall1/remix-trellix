@@ -10,13 +10,13 @@ export async function createList(
   });
 }
 
-export async function createCard(
+export async function createStory(
   userId: string,
   boardId: string,
   listId: string,
   title: string
 ) {
-  return db.card.create({
+  return db.story.create({
     data: {
       title,
       order: 0,
