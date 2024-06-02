@@ -1,3 +1,4 @@
+import { useDroppable } from "@dnd-kit/core";
 import { SerializeFrom } from "@remix-run/node";
 import { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
@@ -21,8 +22,13 @@ export function List({
   list: SerialisedList;
   children: ReactNode;
 }) {
+  const { isOver, setNodeRef } = useDroppable({ id: `list-${list.id}` });
+  const style = {
+    borderColor: isOver ? "green" : undefined,
+  };
+
   return (
-    <Card className="p-2" key={list.id}>
+    <Card className="p-2" key={list.id} ref={setNodeRef} style={style}>
       <div className="py-1.5 pr-2 pl-3">
         <h2>{list.name}</h2>
       </div>

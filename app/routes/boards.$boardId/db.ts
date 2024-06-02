@@ -25,3 +25,14 @@ export async function createStory(
     },
   });
 }
+
+export async function moveStory(
+  userId: string,
+  storyId: string,
+  listId: string
+) {
+  return db.story.update({
+    where: { id: storyId, board: { userId } },
+    data: { listId },
+  });
+}

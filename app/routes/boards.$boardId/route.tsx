@@ -1,11 +1,11 @@
 import { parseWithZod } from "@conform-to/zod";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 import { Shell } from "~/components/shell";
 import { Card } from "~/components/ui/card";
@@ -16,16 +16,32 @@ import {
 } from "~/components/ui/popover";
 import { db } from "~/utils/db.server";
 import { requireUserIdFromRequest } from "~/utils/session.server";
-import { createList, createStory } from "./db";
+import { createList, createStory, moveStory } from "./db";
 import { List } from "./list";
 import { NewList } from "./new-list";
 import { Story } from "./story";
 
 export default function Board() {
   const { boardData } = useLoaderData<typeof loader>();
+  const dragFetcher = useFetcher();
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const storyId = e.active.id;
+    const listId = e.over?.id;
+    if (!listId) return;
+
+    dragFetcher.submit(
+      {
+        storyId,
+        listId,
+        intent: "moveStory",
+      },
+      { method: "post" }
+    );
+  };
 
   return (
-    <DndContext>
+    <DndContext onDragEnd={handleDragEnd}>
       <Shell>
         <div className="p-2 h-[calc(100vh-49px)] overflow-x-auto">
           <div className="grid grid-flow-col items-start auto-cols-[280px] gap-2">
@@ -60,6 +76,11 @@ export const storySchema = z.object({
   listId: z.string(),
 });
 
+export const moveStorySchema = z.object({
+  storyId: z.string(),
+  listId: z.string(),
+});
+
 export async function action({ request, params }: ActionFunctionArgs) {
   const boardId = params.boardId;
   if (!boardId) return null;
@@ -86,6 +107,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
         boardId,
         submission.value.listId,
         submission.value.title
+      );
+      break;
+    }
+    case "moveStory": {
+      const submission = parseWithZod(formData, { schema: moveStorySchema });
+      if (submission.status !== "success") {
+        return submission.reply();
+      }
+      await moveStory(
+        userId,
+        submission.value.storyId.replace("story-", ""),
+        submission.value.listId.replace("list-", "")
       );
       break;
     }
