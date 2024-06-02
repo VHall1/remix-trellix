@@ -8,7 +8,6 @@ import {
 import { useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 import { Shell } from "~/components/shell";
-import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import {
   Popover,
@@ -18,8 +17,8 @@ import {
 import { db } from "~/utils/db.server";
 import { requireUserIdFromRequest } from "~/utils/session.server";
 import { createList, createStory } from "./db";
+import { List } from "./list";
 import { NewList } from "./new-list";
-import { NewStory } from "./new-story";
 import { Story } from "./story";
 
 export default function Board() {
@@ -31,26 +30,11 @@ export default function Board() {
         <div className="p-2 h-[calc(100vh-49px)] overflow-x-auto">
           <div className="grid grid-flow-col items-start auto-cols-[280px] gap-2">
             {boardData.lists.map((list) => (
-              <Card className="p-2" key={list.id}>
-                <div className="py-1.5 pr-2 pl-3">
-                  <h2>{list.name}</h2>
-                </div>
-                <div className="flex flex-col gap-2">
-                  {list.stories.map((story) => (
-                    <Story story={story} key={story.id} />
-                  ))}
-                  <Popover>
-                    <PopoverTrigger>
-                      <Button variant="ghost" size="sm" className="w-full">
-                        New story
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <NewStory listId={list.id} />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </Card>
+              <List list={list} key={list.id}>
+                {list.stories.map((story) => (
+                  <Story story={story} key={story.id} />
+                ))}
+              </List>
             ))}
             <Popover>
               <PopoverTrigger>
