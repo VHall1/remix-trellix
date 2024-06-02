@@ -19,49 +19,52 @@ import { requireUserIdFromRequest } from "~/utils/session.server";
 import { createCard, createList } from "./db";
 import { NewCard } from "./new-card";
 import { NewList } from "./new-list";
+import { DndContext } from "@dnd-kit/core";
 
 export default function Board() {
   const { boardData } = useLoaderData<typeof loader>();
 
   return (
-    <Shell>
-      <div className="p-2 h-[calc(100vh-49px)] overflow-x-auto">
-        <div className="grid grid-flow-col auto-cols-[280px] gap-2">
-          {boardData.lists.map((list) => (
-            <Card className="p-2" key={list.id}>
-              <div className="py-1.5 pr-2 pl-3">
-                <h2>{list.name}</h2>
-              </div>
-              <div className="flex flex-col gap-2">
-                {list.cards.map((card) => (
-                  <Card key={card.id} draggable>
-                    {card.title}
-                  </Card>
-                ))}
-                <Popover>
-                  <PopoverTrigger>
-                    <Button variant="ghost" size="sm">
-                      New card
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <NewCard listId={list.id} />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </Card>
-          ))}
-          <Popover>
-            <PopoverTrigger>
-              <Card className="p-2">Add another list</Card>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <NewList />
-            </PopoverContent>
-          </Popover>
+    <DndContext>
+      <Shell>
+        <div className="p-2 h-[calc(100vh-49px)] overflow-x-auto">
+          <div className="grid grid-flow-col items-start auto-cols-[280px] gap-2">
+            {boardData.lists.map((list) => (
+              <Card className="p-2" key={list.id}>
+                <div className="py-1.5 pr-2 pl-3">
+                  <h2>{list.name}</h2>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {list.cards.map((card) => (
+                    <Card key={card.id} draggable>
+                      {card.title}
+                    </Card>
+                  ))}
+                  <Popover>
+                    <PopoverTrigger>
+                      <Button variant="ghost" size="sm">
+                        New card
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <NewCard listId={list.id} />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </Card>
+            ))}
+            <Popover>
+              <PopoverTrigger>
+                <Card className="p-2">Add another list</Card>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <NewList />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
-      </div>
-    </Shell>
+      </Shell>
+    </DndContext>
   );
 }
 
